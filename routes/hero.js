@@ -16,8 +16,8 @@ router.get("/", async (req, res) => {
     // Transformar los usuarios para que tengan el campo "id" en lugar de "_id"
     const transformedHero = hero.map((hero) => ({
       id: hero._id.toString(), // Transformamos _id a id
-      title: hero.title,
-      text: hero.text,
+      titleHero: hero.titleHero,
+      textHero: hero.textHero,
       buttonL: hero.buttonL,
       buttonR: hero.buttonR,
     }));
@@ -44,8 +44,8 @@ router.get("/:id", async (req, res) => {
     // Transformar el usuario para que tenga el campo "id" en lugar de "_id"
     const transformedHero = {
       id: hero._id.toString(), // Transformamos _id a id
-      title: hero.title,
-      text: hero.text,
+      titleHero: hero.titleHero,
+      textHero: hero.textHero,
       buttonL: hero.buttonL,
       buttonR: hero.buttonR,
     };
