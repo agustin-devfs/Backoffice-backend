@@ -1,24 +1,23 @@
 import express from "express";
-import product from "../models/Products.js";
+import Product from "../models/Products.js"; // Corregido: Nombre en mayúscula
 
 const router = express.Router();
 
-// Ruta para obtener los usuarios con paginación (y respuesta compatible con React Admin)
+// Obtener productos con paginación (compatible con React-Admin)
 router.get("/", async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; // Página actual
-    const pageSize = parseInt(req.query.pageSize) || 10; // Tamaño de la página
-    const skip = (page - 1) * pageSize; // Calcular cuántos documentos saltar
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
+    const skip = (page - 1) * pageSize;
 
-    const totalProducts = await product.countDocuments(); // Contar usuarios en la DB
-    const Products = await product.find().skip(skip).limit(pageSize);
+    const totalProducts = await Product.countDocuments();
+    const products = await Product.find().skip(skip).limit(pageSize);
 
-    // Transformar los usuarios para que tengan el campo "id" en lugar de "_id"
-    const transformedProducts = Products.map((product) => ({
-      id: product._id.toString(), // Transformamos _id a id
+    const transformedProducts = products.map((product) => ({
+      id: product._id.toString(),
       title: product.title,
       description: product.description,
-      code:product.code,
+      code: product.code,
       price: product.price,
       status: product.status,
       stock: product.stock,
@@ -26,31 +25,30 @@ router.get("/", async (req, res) => {
       thumbnails: product.thumbnails
     }));
 
-    // React Admin espera { data: [...], total: X }
     res.setHeader(
       "Content-Range",
-      `Products ${skip + 1}-${skip + transformedProducts.length}/${totalProducts}`
+      `products ${skip + 1}-${skip + transformedProducts.length}/${totalProducts}`
     );
     res.json({ data: transformedProducts, total: totalProducts });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching Products" });
+    res.status(500).json({ message: "Error fetching products" });
   }
 });
 
+// Obtener un producto por ID
 router.get("/:id", async (req, res) => {
   try {
-    const product = await product.findById(req.params.id); // Buscar usuario por su _id
+    const product = await Product.findById(req.params.id);
 
     if (!product) {
-      return res.status(404).json({ message: "product not found" });
+      return res.status(404).json({ message: "Product not found" });
     }
 
-    // Transformar el usuario para que tenga el campo "id" en lugar de "_id"
-    const transformedproduct = {
-      id: product._id.toString(), // Transformamos _id a id
+    const transformedProduct = {
+      id: product._id.toString(),
       title: product.title,
       description: product.description,
-      code:product.code,
+      code: product.code,
       price: product.price,
       status: product.status,
       stock: product.stock,
@@ -58,46 +56,45 @@ router.get("/:id", async (req, res) => {
       thumbnails: product.thumbnails
     };
 
-    res.json({ data: transformedproduct });
+    res.json({ data: transformedProduct });
   } catch (error) {
     res.status(500).json({ message: "Error fetching product" });
   }
 });
 
-// Crear un nuevo usuario
+// Crear un nuevo producto
 router.post("/", async (req, res) => {
   try {
-    const newproduct = new product(req.body);
-    await newproduct.save();
+    const newProduct = new Product(req.body);
+    await newProduct.save();
 
-    // Devolvemos el nuevo usuario con id en lugar de _id
-    res
-      .status(201)
-      .json({ data: { id: newproduct._id.toString(), ...newproduct.toObject() } }); // Convertimos _id a id
+    res.status(201).json({ data: { id: newProduct._id.toString(), ...newProduct.toObject() } });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
 
+// Actualizar un producto
 router.put("/:id", async (req, res) => {
   try {
-    const updatedproduct = await product.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    res.status(200).json({ data: updatedproduct });
+    const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+
+    res.status(200).json({ data: updatedProduct });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
+
+// Eliminar un producto
 router.delete("/:id", async (req, res) => {
   try {
-    const deletedproduct = await product.findByIdAndDelete(req.params.id);
+    const deletedProduct = await Product.findByIdAndDelete(req.params.id);
 
-    if (!deletedproduct) {
-      return res.status(404).json({ message: "product not found" });
+    if (!deletedProduct) {
+      return res.status(404).json({ message: "Product not found" });
     }
 
-    res.status(200).json({ data: deletedproduct }); // Respuesta con el usuario eliminado
+    res.status(200).json({ data: deletedProduct });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
