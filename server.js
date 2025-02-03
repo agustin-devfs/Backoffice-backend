@@ -7,6 +7,7 @@ import usersRoute from "./routes/users.js";
 import heroRoute from "./routes/hero.js";
 import cardsRoute from "./routes/cards.js";
 import testimonialsRoute from "./routes/testimonials.js";
+import productsRoute from "./routes/products.js";
 
 dotenv.config();
 const app = express();
@@ -30,6 +31,7 @@ app.use("/api/users", usersRoute);
 app.use("/api/hero", heroRoute);
 app.use("/api/cards", cardsRoute);
 app.use("/api/testimonials", testimonialsRoute);
+app.use("/api/products", productsRoute);
 
 // Servidor
 const PORT = process.env.PORT || 5000;
