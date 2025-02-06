@@ -7,6 +7,7 @@ import usersRoute from "./routes/users.js";
 import navsRoute from "./routes/navs.js";
 import heroRoute from "./routes/hero.js";
 import cardsRoute from "./routes/cards.js";
+import eventsRoute from "./routes/events.js";
 import testimonialsRoute from "./routes/testimonials.js";
 import productsRoute from "./routes/products.js";
 import uploadRoute from "./routes/uploadRoutes.js";
@@ -34,6 +35,7 @@ app.use("/api/nav", navsRoute);
 app.use("/api/hero", heroRoute);
 app.use("/api/cards", cardsRoute);
 app.use("/api/testimonials", testimonialsRoute);
+app.use("/api/events", eventsRoute);
 app.use("/api/products", productsRoute);
 app.use("/api/upload", uploadRoute); 
 

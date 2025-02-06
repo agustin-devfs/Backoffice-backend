@@ -18,6 +18,7 @@ router.get("/", async (req, res) => {
       id: nav._id.toString(), // Transformamos _id a id
       nav: nav.nav,
       linkNav: nav.linkNav,
+      iconNav: nav.iconNav,
     }));
 
     // React Admin espera { data: [...], total: X }
@@ -44,6 +45,7 @@ router.get("/:id", async (req, res) => {
       id: nav._id.toString(), // Transformamos _id a id
       nav: nav.nav,
       linkNav: nav.linkNav,
+      iconNav: nav.iconNav,
     };
 
     res.json({ data: transformedNav });
