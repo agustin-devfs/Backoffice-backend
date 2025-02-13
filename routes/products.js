@@ -1,9 +1,9 @@
 import express from "express";
-import Product from "../models/Products.js"; // Corregido: Nombre en mayúscula
-
+import Product from "../models/Products.js";
+import upload from "../middleware/uploads.js";
 const router = express.Router();
 
-// Obtener productos con paginación (compatible con React-Admin)
+// Obtener productos con paginación
 router.get("/", async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -22,12 +22,14 @@ router.get("/", async (req, res) => {
       status: product.status,
       stock: product.stock,
       category: product.category,
-      thumbnails: product.thumbnails
+      thumbnails: product.thumbnails,
     }));
 
     res.setHeader(
       "Content-Range",
-      `products ${skip + 1}-${skip + transformedProducts.length}/${totalProducts}`
+      `products ${skip + 1}-${
+        skip + transformedProducts.length
+      }/${totalProducts}`
     );
     res.json({ data: transformedProducts, total: totalProducts });
   } catch (error) {
@@ -44,40 +46,67 @@ router.get("/:id", async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    const transformedProduct = {
-      id: product._id.toString(),
-      title: product.title,
-      description: product.description,
-      code: product.code,
-      price: product.price,
-      status: product.status,
-      stock: product.stock,
-      category: product.category,
-      thumbnails: product.thumbnails
-    };
-
-    res.json({ data: transformedProduct });
+    res.json({ data: product });
   } catch (error) {
     res.status(500).json({ message: "Error fetching product" });
   }
 });
 
-// Crear un nuevo producto
-router.post("/", async (req, res) => {
+// Subir imágenes y crear un nuevo producto
+router.post("/", upload.array("thumbnails", 5), async (req, res) => {
   try {
-    const newProduct = new Product(req.body);
-    await newProduct.save();
+    const { title, description, code, price, status, stock, category } =
+      req.body;
 
-    res.status(201).json({ data: { id: newProduct._id.toString(), ...newProduct.toObject() } });
+    // Obtener URLs de imágenes subidas
+    const thumbnails = req.files.map((file) => `/uploads/${file.filename}`);
+
+    const newProduct = new Product({
+      title,
+      description,
+      code,
+      price,
+      status,
+      stock,
+      category,
+      thumbnails,
+    });
+
+    await newProduct.save();
+    res.status(201).json({ data: newProduct });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
 
-// Actualizar un producto
-router.put("/:id", async (req, res) => {
+// Actualizar un producto (incluyendo imágenes)
+router.put("/:id", upload.array("thumbnails", 5), async (req, res) => {
   try {
-    const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const { title, description, code, price, status, stock, category } =
+      req.body;
+
+    const updatedData = {
+      title,
+      description,
+      code,
+      price,
+      status,
+      stock,
+      category,
+    };
+
+    // Si hay nuevas imágenes, las agregamos
+    if (req.files.length > 0) {
+      updatedData.thumbnails = req.files.map(
+        (file) => `/uploads/${file.filename}`
+      );
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      updatedData,
+      { new: true }
+    );
 
     res.status(200).json({ data: updatedProduct });
   } catch (error) {

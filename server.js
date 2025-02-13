@@ -12,6 +12,7 @@ import testimonialsRoute from "./routes/testimonials.js";
 import productsRoute from "./routes/products.js";
 import uploadRoute from "./routes/uploadRoutes.js";
 
+// Configurar variables de entorno
 dotenv.config();
 const app = express();
 
@@ -28,6 +29,8 @@ app.use(
 // Middlewares
 app.use(cors());
 app.use(express.json());
+// Servir imágenes desde 'uploads'
+app.use("/uploads", express.static("uploads"));
 
 // Rutas
 app.use("/api/users", usersRoute);
@@ -37,7 +40,7 @@ app.use("/api/cards", cardsRoute);
 app.use("/api/testimonials", testimonialsRoute);
 app.use("/api/events", eventsRoute);
 app.use("/api/products", productsRoute);
-app.use("/api/upload", uploadRoute); 
+app.use("/api/upload", uploadRoute);
 
 // Servidor
 const PORT = process.env.PORT || 5000;
