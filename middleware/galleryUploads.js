@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+
 // Configurar Cloudinary (se puede repetir aquí o asegurarte de que se configure globalmente)
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,

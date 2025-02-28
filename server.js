@@ -10,7 +10,6 @@ import cardsRoute from "./routes/cards.js";
 import eventsRoute from "./routes/events.js";
 import testimonialsRoute from "./routes/testimonials.js";
 import productsRoute from "./routes/products.js";
-import uploadRoute from "./routes/uploadRoutes.js";
 
 // Configurar variables de entorno
 dotenv.config();
@@ -40,7 +39,7 @@ app.use("/api/cards", cardsRoute);
 app.use("/api/testimonials", testimonialsRoute);
 app.use("/api/events", eventsRoute);
 app.use("/api/products", productsRoute);
-app.use("/api/upload", uploadRoute);
+
 
 // Servidor
 const PORT = process.env.PORT || 5000;
