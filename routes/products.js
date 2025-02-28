@@ -52,14 +52,23 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Subir imágenes y crear un nuevo producto
+// Crear un nuevo producto
 router.post("/", upload.array("thumbnails", 5), async (req, res) => {
   try {
-    const { title, description, code, price, status, stock, category } =
-      req.body;
+    const { title, description, code, price, status, stock, category } = req.body;
 
-    // Obtener URLs de imágenes subidas
-    const thumbnails = req.files.map((file) => `/uploads/${file.filename}`);
+    let thumbnailsData = [];
+    if (req.files && req.files.length > 0) {
+      // Si se subieron archivos mediante multer, armamos el objeto a partir de ellos
+      thumbnailsData = req.files.map(file => ({
+        rawFile: { path: `/uploads/${file.filename}`, relativePath: `/uploads/${file.filename}` },
+        src: `/uploads/${file.filename}`,
+        title: file.originalname,
+      }));
+    } else if (req.body.thumbnails) {
+      // Si se envían thumbnails desde el cliente (por ejemplo, en formato JSON)
+      thumbnailsData = req.body.thumbnails;
+    }
 
     const newProduct = new Product({
       title,
@@ -69,7 +78,7 @@ router.post("/", upload.array("thumbnails", 5), async (req, res) => {
       status,
       stock,
       category,
-      thumbnails,
+      thumbnails: thumbnailsData,
     });
 
     await newProduct.save();
@@ -82,8 +91,7 @@ router.post("/", upload.array("thumbnails", 5), async (req, res) => {
 // Actualizar un producto (incluyendo imágenes)
 router.put("/:id", upload.array("thumbnails", 5), async (req, res) => {
   try {
-    const { title, description, code, price, status, stock, category } =
-      req.body;
+    const { title, description, code, price, status, stock, category } = req.body;
 
     const updatedData = {
       title,
@@ -95,24 +103,25 @@ router.put("/:id", upload.array("thumbnails", 5), async (req, res) => {
       category,
     };
 
-    // Si hay nuevas imágenes, las agregamos
-    if (req.files.length > 0) {
-      updatedData.thumbnails = req.files.map(
-        (file) => `/uploads/${file.filename}`
-      );
+    // Procesar thumbnails según cómo lleguen
+    if (req.files && req.files.length > 0) {
+      updatedData.thumbnails = req.files.map(file => ({
+        rawFile: { path: `/uploads/${file.filename}`, relativePath: `/uploads/${file.filename}` },
+        src: `/uploads/${file.filename}`,
+        title: file.originalname,
+      }));
+    } else if (req.body.thumbnails) {
+      updatedData.thumbnails = req.body.thumbnails;
     }
 
-    const updatedProduct = await Product.findByIdAndUpdate(
-      req.params.id,
-      updatedData,
-      { new: true }
-    );
+    const updatedProduct = await Product.findByIdAndUpdate(req.params.id, updatedData, { new: true });
 
     res.status(200).json({ data: updatedProduct });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
+
 
 // Eliminar un producto
 router.delete("/:id", async (req, res) => {

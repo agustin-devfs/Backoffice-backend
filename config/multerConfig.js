@@ -13,7 +13,7 @@ cloudinary.config({
 });
 
 // Configurar almacenamiento en Cloudinary
-const storage = new CloudinaryStorage({
+const storageProducts = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: "products", // Carpeta en Cloudinary
@@ -22,7 +22,19 @@ const storage = new CloudinaryStorage({
   }
 });
 
+// Configurar almacenamiento en Cloudinary
+const storageGAlery = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "galery", // Carpeta en Cloudinary
+    format: async () => "png", // Formato de imagen
+    public_id: (req, file) => file.originalname.split(".")[0] // Nombre del archivo
+  }
+});
+
 // Middleware de Multer
 const upload = multer({ storage });
+
+
 
 export default upload;
